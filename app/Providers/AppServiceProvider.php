@@ -8,6 +8,7 @@ use App\Models\LogoSetting;
 use App\Models\PusherSetting;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -28,39 +29,62 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
-        $general_setting = GeneralSetting::firstOrFail();
-        $logo_setting = LogoSetting::firstOrFail();
-        $mailSetting = EmailConfiguration::firstOrFail();
-        $pusherSetting = PusherSetting::firstOrFail();
+        // Only load settings if all required tables exist
+        if ($this->checkIfTablesExist()) {
+            try {
+                $general_setting = GeneralSetting::first();
+                $logo_setting = LogoSetting::first();
+                $mailSetting = EmailConfiguration::first();
+                $pusherSetting = PusherSetting::first();
 
-        /**
-         * Set Timezone
-         */
-        Config::set('app.timezone', $general_setting->timezone);
+                if ($general_setting && $logo_setting && $mailSetting && $pusherSetting) {
+                    /**
+                     * Set Timezone
+                     */
+                    Config::set('app.timezone', $general_setting->timezone);
 
-        /** Set Mail Config */
-        Config::set('mail.mailers.smtp.host', $mailSetting->host);
-        Config::set('mail.mailers.smtp.port', $mailSetting->port);
-        Config::set('mail.mailers.smtp.encryption', $mailSetting->encryption);
-        Config::set('mail.mailers.smtp.username', $mailSetting->username);
-        Config::set('mail.mailers.smtp.password', $mailSetting->password);
+                    /** Set Mail Config */
+                    Config::set('mail.mailers.smtp.host', $mailSetting->host);
+                    Config::set('mail.mailers.smtp.port', $mailSetting->port);
+                    Config::set('mail.mailers.smtp.encryption', $mailSetting->encryption);
+                    Config::set('mail.mailers.smtp.username', $mailSetting->username);
+                    Config::set('mail.mailers.smtp.password', $mailSetting->password);
 
-        /** Set Broadcasting Config */
-        Config::set('broadcasting.connections.pusher.key', $pusherSetting->pusher_key);
-        Config::set('broadcasting.connections.pusher.secret', $pusherSetting->pusher_secret);
-        Config::set('broadcasting.connections.pusher.app_id', $pusherSetting->pusher_app_id);
-        Config::set('broadcasting.connections.pusher.options.host',
-            "api-" . $pusherSetting->pusher_cluster . ".pusher.com");
+                    /** Set Broadcasting Config */
+                    Config::set('broadcasting.connections.pusher.key', $pusherSetting->pusher_key);
+                    Config::set('broadcasting.connections.pusher.secret', $pusherSetting->pusher_secret);
+                    Config::set('broadcasting.connections.pusher.app_id', $pusherSetting->pusher_app_id);
+                    Config::set(
+                        'broadcasting.connections.pusher.options.host',
+                        'api-' . $pusherSetting->pusher_cluster . '.pusher.com'
+                    );
 
-        /**
-         * Access settings at all views
-         */
-        View::composer('*', static function ($view) use ($general_setting, $logo_setting, $pusherSetting) {
-            $view->with([
-                'settings' => $general_setting,
-                'logo_setting' => $logo_setting,
-                'pusherSetting' => $pusherSetting
-            ]);
-        });
+                    /**
+                     * Access settings at all views
+                     */
+                    View::composer('*', static function ($view) use ($general_setting, $logo_setting, $pusherSetting) {
+                        $view->with([
+                            'settings' => $general_setting,
+                            'logo_setting' => $logo_setting,
+                            'pusherSetting' => $pusherSetting,
+                        ]);
+                    });
+                }
+            } catch (\Exception $e) {
+                // Log error if needed
+                // \Log::error($e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Check if all required tables exist
+     */
+    private function checkIfTablesExist(): bool
+    {
+        return Schema::hasTable('general_settings')
+            && Schema::hasTable('logo_settings')
+            && Schema::hasTable('email_configurations')
+            && Schema::hasTable('pusher_settings');
     }
 }
