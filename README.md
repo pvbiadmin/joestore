@@ -29,6 +29,106 @@ You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you
 
 If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
+## Laravel Project Installation Guide
+
+This guide will help you set up the Laravel project using Laragon on Windows.
+
+### Prerequisites
+- [Laragon](https://laragon.org/download/) installed
+- [Git](https://git-scm.com/downloads) installed
+- [Composer](https://getcomposer.org/download/) installed
+- [Node.js](https://nodejs.org/) installed (for frontend assets)
+
+### Installation Steps
+
+#### 1. Clone the Repository
+```bash
+# Navigate to Laragon's www directory
+cd C:\laragon\www
+
+# Clone your Git repository
+git clone <your-repository-url> project-name
+
+# Navigate to project directory
+cd project-name
+```
+
+#### 2. Install Dependencies
+```bash
+# Install PHP dependencies
+composer install
+
+# Install Node.js dependencies (if using frontend assets)
+npm install
+```
+
+#### 3. Configure Environment
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+```
+
+#### 4. Database Setup
+1. Open Laragon database manager (HeidiSQL)
+2. Create your database
+3. Update `.env` file with your database credentials:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+#### 5. Run Migrations
+```bash
+php artisan migrate
+```
+
+#### 6. Build Frontend Assets
+```bash
+# If using Vite
+npm run build
+```
+
+#### 7. Configure Virtual Host
+1. Right-click Laragon tray icon
+2. Navigate to Apache → Sites
+3. Add "project-name.test"
+
+#### 8. Clear Application Cache
+```bash
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+```
+
+#### 9. Set Permissions
+```bash
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
+```
+
+#### 10. Final Step
+1. Right-click Laragon tray icon
+2. Select 'Restart'
+
+### Additional Notes
+- Make sure all prerequisites are properly installed before starting the installation process
+- The project should now be accessible at `http://project-name.test`
+- If you encounter any issues, check Laragon's error logs
+
+### Troubleshooting
+If you encounter any issues during installation, try these steps:
+1. Ensure all required services (Apache, MySQL) are running in Laragon
+2. Verify that all prerequisites are properly installed
+3. Check the Laravel error logs in `storage/logs`
+
 ## Laravel Sponsors
 
 We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
