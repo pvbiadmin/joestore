@@ -27,11 +27,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Check if we're running in console (artisan command)
+        if ($this->app->runningInConsole()) {
+            return;
+        }
+
         Paginator::useBootstrap();
 
-        // Only load settings if all required tables exist
-        if ($this->checkIfTablesExist()) {
-            try {
+        try {
+            // First check if we can connect to the database
+            \DB::connection()->getPdo();
+
+            // Then check if tables exist
+            if ($this->checkIfTablesExist()) {
                 $general_setting = GeneralSetting::first();
                 $logo_setting = LogoSetting::first();
                 $mailSetting = EmailConfiguration::first();
@@ -56,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
                     Config::set('broadcasting.connections.pusher.app_id', $pusherSetting->pusher_app_id);
                     Config::set(
                         'broadcasting.connections.pusher.options.host',
-                        'api-' . $pusherSetting->pusher_cluster . '.pusher.com'
+                        "api-" . $pusherSetting->pusher_cluster . ".pusher.com"
                     );
 
                     /**
@@ -66,14 +74,14 @@ class AppServiceProvider extends ServiceProvider
                         $view->with([
                             'settings' => $general_setting,
                             'logo_setting' => $logo_setting,
-                            'pusherSetting' => $pusherSetting,
+                            'pusherSetting' => $pusherSetting
                         ]);
                     });
                 }
-            } catch (\Exception $e) {
-                // Log error if needed
-                // \Log::error($e->getMessage());
             }
+        } catch (\Exception $e) {
+            // Log error if needed but don't throw exception
+            // \Log::error($e->getMessage());
         }
     }
 
