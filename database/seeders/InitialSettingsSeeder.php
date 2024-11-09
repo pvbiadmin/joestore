@@ -14,7 +14,7 @@ class InitialSettingsSeeder extends Seeder
     {
         // General Settings
         GeneralSetting::create([
-            'site_name' => 'PV Bishop',
+            'site_name' => 'PVBI Shop',
             'site_layout' => 'LTR',
             'contact_email' => 'contact@pvbi.org',
             'timezone' => 'Asia/Manila',
