@@ -1,5 +1,5 @@
 I'll walk you through the entire process from the initial problem statement to the formulation of the solution for the affiliate marketing system in Laravel 10.
-test lang
+
 1. Problem Statement:
 The task was to create an affiliate marketing system in Laravel 10 with the following requirements:
 - Users can share affiliate links to other users.
